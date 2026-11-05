@@ -3,7 +3,7 @@ MODULE bdffont;
 (** Convert an ISO10646 BDF bitmap font to an Oberon .Scn.Fnt file.
     Usage: bdffont.Convert "input.bdf" "output.Scn.Fnt" *)
 
-IMPORT Files, Texts := texts, Oberon := Oberon0, out;
+IMPORT Files, Texts, Oberon := Oberon0, Out;
 
 CONST
   MaxLine = 512;
@@ -100,7 +100,7 @@ VAR
   inBitmap: BOOLEAN;
 BEGIN
   f := Files.Old(name);
-  IF f = NIL THEN out.String("bdffont: cannot open "); out.String(name); out.Ln; RETURN FALSE END;
+  IF f = NIL THEN Out.String("bdffont: cannot open "); Out.String(name); Out.Ln; RETURN FALSE END;
   len := Files.Length(f); Files.Set(R, f, 0);
   first := NIL; count := 0; fontW := 0; fontH := 0;
   enc := -1; dx := 0; x := 0; y := 0; w := 0; h := 0;
@@ -137,7 +137,7 @@ BEGIN
     END
   END;
   Files.ReleaseRead(f);
-  IF count = 0 THEN out.String("bdffont: no usable glyphs"); out.Ln; RETURN FALSE END;
+  IF count = 0 THEN Out.String("bdffont: no usable glyphs"); Out.Ln; RETURN FALSE END;
   RETURN TRUE
 END Parse;
 
@@ -154,7 +154,7 @@ BEGIN
     p := q.next
   END;
   f := Files.New(name);
-  IF f = NIL THEN out.String("bdffont: cannot create "); out.String(name); out.Ln; RETURN FALSE END;
+  IF f = NIL THEN Out.String("bdffont: cannot create "); Out.String(name); Out.Ln; RETURN FALSE END;
   Files.Set(R, f, 0);
   Files.Write(R, 0DBX); Files.Write(R, 0X);  (* library id, screen font *)
   Files.Write(R, 0X); Files.Write(R, 0X);   (* family, variant *)
@@ -180,8 +180,8 @@ BEGIN
     p := p.next
   END;
   Files.Register(f);
-  out.String("bdffont: wrote "); out.String(name); out.String(" with ");
-  out.Int(count, 0); out.String(" glyphs in "); out.Int(runs, 0); out.String(" runs"); out.Ln;
+  Out.String("bdffont: wrote "); Out.String(name); Out.String(" with ");
+  Out.Int(count, 0); Out.String(" glyphs in "); Out.Int(runs, 0); Out.String(" runs"); Out.Ln;
   RETURN TRUE
 END Store;
 
@@ -190,10 +190,10 @@ VAR S: Texts.Scanner; input, output: ARRAY 256 OF CHAR; first: Glyph; count, w, 
 BEGIN
   Texts.OpenScanner(S, Oberon.Par.text, Oberon.Par.pos); Texts.Scan(S);
   IF S.class IN {Texts.Name, Texts.String} THEN COPY(S.s, input); Texts.Scan(S)
-  ELSE out.String("usage: bdffont.Convert input.bdf output.Scn.Fnt"); out.Ln; RETURN
+  ELSE Out.String("usage: bdffont.Convert input.bdf output.Scn.Fnt"); Out.Ln; RETURN
   END;
   IF S.class IN {Texts.Name, Texts.String} THEN COPY(S.s, output)
-  ELSE out.String("usage: bdffont.Convert input.bdf output.Scn.Fnt"); out.Ln; RETURN
+  ELSE Out.String("usage: bdffont.Convert input.bdf output.Scn.Fnt"); Out.Ln; RETURN
   END;
   IF Parse(input, first, count, w, h) THEN
     IF Store(output, first, count, w, h) THEN END
